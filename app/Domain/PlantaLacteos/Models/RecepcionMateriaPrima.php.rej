@@ -1,0 +1,17 @@
+diff a/app/Domain/PlantaLacteos/Models/RecepcionMateriaPrima.php b/app/Domain/PlantaLacteos/Models/RecepcionMateriaPrima.php	(rejected hunks)
+@@ -150,6 +150,15 @@
+             ->when(
+                 $filters['registro_senasag'] ?? null,
+                 fn($q, $registro) => $q->where('registro_senasag', 'like', "%{$registro}%")
++            )
++            // Rango de fechas (usado por el informe de materias primas ingresadas)
++            ->when(
++                $filters['fecha_desde'] ?? null,
++                fn($q, $desde) => $q->where('tiempo', '>=', \Carbon\Carbon::parse($desde)->startOfDay())
++            )
++            ->when(
++                $filters['fecha_hasta'] ?? null,
++                fn($q, $hasta) => $q->where('tiempo', '<=', \Carbon\Carbon::parse($hasta)->endOfDay())
+             );
+     }
+ 

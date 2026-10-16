@@ -1,0 +1,12 @@
+diff a/app/Domain/PlantaLacteos/Http/Requests/RecepcionMateriaPrimaRequest.php b/app/Domain/PlantaLacteos/Http/Requests/RecepcionMateriaPrimaRequest.php	(rejected hunks)
+@@ -15,8 +15,8 @@
+     {
+         return [
+             'item_materia_prima_id'   => 'required|integer|exists:PLL_item_materia_primas,id',
+-            'proveedor_materia_prima_id' => 'required|integer',
+-            'almacenero_id'           => 'required|integer',
++            'proveedor_materia_prima_id' => 'required|integer|exists:PLL_proveedor_materia_primas,id',
++            'almacenero_id'           => 'required|integer|exists:users,id',
+ 
+             'tiempo'                  => 'nullable|date',
+             'cantidad'                => 'nullable|numeric',

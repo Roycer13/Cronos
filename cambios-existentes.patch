@@ -1,0 +1,100 @@
+--- a/app/Domain/PlantaLacteos/routes.php
++++ b/app/Domain/PlantaLacteos/routes.php
+@@ -5,6 +5,7 @@
+ use App\Domain\PlantaLacteos\Http\Controllers\RecepcionLecheController;
+ use App\Domain\PlantaLacteos\Http\Controllers\AnalisisLecheController;
+ use App\Domain\PlantaLacteos\Http\Controllers\RecepcionMateriaPrimaController;
++use App\Domain\PlantaLacteos\Http\Controllers\InformeMateriaPrimaController;
+ use App\Domain\PlantaLacteos\Http\Controllers\AnalisisLineaController;
+ use App\Domain\PlantaLacteos\Http\Controllers\ConteoController;
+ use App\Domain\PlantaLacteos\Http\Controllers\AmbienteFrioController;
+@@ -1105,7 +1106,21 @@
+     ->middleware(AdminOrPermission::class . ':u_recepcionMateriaPrima');
+ 
+ Route::get('/recepciones-materia-prima/pdf', [RecepcionMateriaPrimaController::class, 'pdf'])
+-    ->name('recepciones-materia-prima.pdf');
++    ->name('recepciones-materia-prima.pdf')
++    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
++
++// Informe de materias primas ingresadas
++Route::get('informes/materia-prima', [InformeMateriaPrimaController::class, 'index'])
++    ->name('informes.materia-prima.index')
++    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
++
++Route::get('informes/materia-prima/datos', [InformeMateriaPrimaController::class, 'datos'])
++    ->name('informes.materia-prima.datos')
++    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
++
++Route::get('informes/materia-prima/excel', [InformeMateriaPrimaController::class, 'excel'])
++    ->name('informes.materia-prima.excel')
++    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
+ 
+ Route::get('recepciones-materia-prima/{recepcion}/analisis/pdf', [AnalisisMateriaPrimaController::class, 'pdf'])
+     ->name('analisis-materia-prima.pdf')
+--- a/app/Domain/PlantaLacteos/Models/RecepcionMateriaPrima.php
++++ b/app/Domain/PlantaLacteos/Models/RecepcionMateriaPrima.php
+@@ -150,6 +150,15 @@
+             ->when(
+                 $filters['registro_senasag'] ?? null,
+                 fn($q, $registro) => $q->where('registro_senasag', 'like', "%{$registro}%")
++            )
++            // Rango de fechas (usado por el informe de materias primas ingresadas)
++            ->when(
++                $filters['fecha_desde'] ?? null,
++                fn($q, $desde) => $q->where('tiempo', '>=', \Carbon\Carbon::parse($desde)->startOfDay())
++            )
++            ->when(
++                $filters['fecha_hasta'] ?? null,
++                fn($q, $hasta) => $q->where('tiempo', '<=', \Carbon\Carbon::parse($hasta)->endOfDay())
+             );
+     }
+ 
+--- a/app/Domain/PlantaLacteos/Http/Controllers/RecepcionMateriaPrimaController.php
++++ b/app/Domain/PlantaLacteos/Http/Controllers/RecepcionMateriaPrimaController.php
+@@ -387,6 +387,15 @@
+             abort(403, 'No tienes permiso para actualizar el estado de esta recepción.');
+         }
+ 
++        $request->validate([
++            'estado_id' => 'nullable|integer|exists:estados,id',
++            'liberacion_id' => 'nullable|integer|exists:estados,id',
++            'estado_analisis_id' => 'nullable|integer|exists:estados,id',
++            'estado_revision_id' => 'nullable|integer|exists:estados,id',
++            'revisor_id' => 'nullable|integer|exists:users,id',
++            'observacion' => 'nullable|string|max:2000',
++        ]);
++
+         $recepcion->estado_id = $request->estado_id;
+         $recepcion->liberacion_id = $request->liberacion_id;
+ 
+--- a/app/Domain/PlantaLacteos/Http/Requests/RecepcionMateriaPrimaRequest.php
++++ b/app/Domain/PlantaLacteos/Http/Requests/RecepcionMateriaPrimaRequest.php
+@@ -15,8 +15,8 @@
+     {
+         return [
+             'item_materia_prima_id'   => 'required|integer|exists:PLL_item_materia_primas,id',
+-            'proveedor_materia_prima_id' => 'required|integer',
+-            'almacenero_id'           => 'required|integer',
++            'proveedor_materia_prima_id' => 'required|integer|exists:PLL_proveedor_materia_primas,id',
++            'almacenero_id'           => 'required|integer|exists:users,id',
+ 
+             'tiempo'                  => 'nullable|date',
+             'cantidad'                => 'nullable|numeric',
+--- a/resources/js/data/areas-data.ts
++++ b/resources/js/data/areas-data.ts
+@@ -51,6 +51,7 @@
+                     { title: "Recepción de Materia Prima", href: "/recepciones-materia-prima", permission: "r_recepcionMateriaPrima3" },
+                     { title: "Recepción de Materia Prima lacteos", href: "/recepciones-materia-prima2", permission: "r_recepcionMateriaPrima2" },
+                     { title: "Administrar Materia Prima", href: "/admin/materia-prima", permission: "r_adminMateriaPrima" },
++                    { title: "Informe de Materia Prima", href: "/informes/materia-prima", permission: "r_recepcionMateriaPrima" },
+                 ],
+             },
+             { title: "Solicitudes OT", href: "/mantenimiento/solicitudOts", icon: StickyNote, permission: "r_solicitudOt" },
+@@ -199,6 +200,7 @@
+                         { title: "Recepción de Materia Prima", href: "/recepciones-materia-prima", permission: "r_recepcionMateriaPrima3" },
+                         { title: "Recepción de Materia Prima lacteos", href: "/recepciones-materia-prima2", permission: "r_recepcionMateriaPrima2" },
+                         { title: "Administrar Materia Prima", href: "/admin/materia-prima", permission: "r_adminMateriaPrima" },
++                        { title: "Informe de Materia Prima", href: "/informes/materia-prima", permission: "r_recepcionMateriaPrima" },
+                         //Leche
+                         { title: "Recepción de Leche", href: "/planta-lacteos/recepciones-leche", permission: "r_recepcionLeche" },
+                         { title: "Análisis de Leche", href: "/planta-lacteos/analisis-leche", permission: "r_analisisLeche" },

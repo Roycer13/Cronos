@@ -1,0 +1,32 @@
+diff a/app/Domain/PlantaLacteos/routes.php b/app/Domain/PlantaLacteos/routes.php	(rejected hunks)
+@@ -5,6 +5,7 @@
+ use App\Domain\PlantaLacteos\Http\Controllers\RecepcionLecheController;
+ use App\Domain\PlantaLacteos\Http\Controllers\AnalisisLecheController;
+ use App\Domain\PlantaLacteos\Http\Controllers\RecepcionMateriaPrimaController;
++use App\Domain\PlantaLacteos\Http\Controllers\InformeMateriaPrimaController;
+ use App\Domain\PlantaLacteos\Http\Controllers\AnalisisLineaController;
+ use App\Domain\PlantaLacteos\Http\Controllers\ConteoController;
+ use App\Domain\PlantaLacteos\Http\Controllers\AmbienteFrioController;
+@@ -1105,7 +1106,21 @@
+     ->middleware(AdminOrPermission::class . ':u_recepcionMateriaPrima');
+ 
+ Route::get('/recepciones-materia-prima/pdf', [RecepcionMateriaPrimaController::class, 'pdf'])
+-    ->name('recepciones-materia-prima.pdf');
++    ->name('recepciones-materia-prima.pdf')
++    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
++
++// Informe de materias primas ingresadas
++Route::get('informes/materia-prima', [InformeMateriaPrimaController::class, 'index'])
++    ->name('informes.materia-prima.index')
++    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
++
++Route::get('informes/materia-prima/datos', [InformeMateriaPrimaController::class, 'datos'])
++    ->name('informes.materia-prima.datos')
++    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
++
++Route::get('informes/materia-prima/excel', [InformeMateriaPrimaController::class, 'excel'])
++    ->name('informes.materia-prima.excel')
++    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
+ 
+ Route::get('recepciones-materia-prima/{recepcion}/analisis/pdf', [AnalisisMateriaPrimaController::class, 'pdf'])
+     ->name('analisis-materia-prima.pdf')

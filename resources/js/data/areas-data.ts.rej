@@ -1,0 +1,17 @@
+diff a/resources/js/data/areas-data.ts b/resources/js/data/areas-data.ts	(rejected hunks)
+@@ -51,6 +51,7 @@
+                     { title: "Recepción de Materia Prima", href: "/recepciones-materia-prima", permission: "r_recepcionMateriaPrima3" },
+                     { title: "Recepción de Materia Prima lacteos", href: "/recepciones-materia-prima2", permission: "r_recepcionMateriaPrima2" },
+                     { title: "Administrar Materia Prima", href: "/admin/materia-prima", permission: "r_adminMateriaPrima" },
++                    { title: "Informe de Materia Prima", href: "/informes/materia-prima", permission: "r_recepcionMateriaPrima" },
+                 ],
+             },
+             { title: "Solicitudes OT", href: "/mantenimiento/solicitudOts", icon: StickyNote, permission: "r_solicitudOt" },
+@@ -199,6 +200,7 @@
+                         { title: "Recepción de Materia Prima", href: "/recepciones-materia-prima", permission: "r_recepcionMateriaPrima3" },
+                         { title: "Recepción de Materia Prima lacteos", href: "/recepciones-materia-prima2", permission: "r_recepcionMateriaPrima2" },
+                         { title: "Administrar Materia Prima", href: "/admin/materia-prima", permission: "r_adminMateriaPrima" },
++                        { title: "Informe de Materia Prima", href: "/informes/materia-prima", permission: "r_recepcionMateriaPrima" },
+                         //Leche
+                         { title: "Recepción de Leche", href: "/planta-lacteos/recepciones-leche", permission: "r_recepcionLeche" },
+                         { title: "Análisis de Leche", href: "/planta-lacteos/analisis-leche", permission: "r_analisisLeche" },
