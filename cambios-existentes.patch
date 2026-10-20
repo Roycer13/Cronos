@@ -8,7 +8,7 @@
  use App\Domain\PlantaLacteos\Http\Controllers\AnalisisLineaController;
  use App\Domain\PlantaLacteos\Http\Controllers\ConteoController;
  use App\Domain\PlantaLacteos\Http\Controllers\AmbienteFrioController;
-@@ -1105,7 +1106,21 @@
+@@ -1105,7 +1106,25 @@
      ->middleware(AdminOrPermission::class . ':u_recepcionMateriaPrima');
  
  Route::get('/recepciones-materia-prima/pdf', [RecepcionMateriaPrimaController::class, 'pdf'])
@@ -23,6 +23,10 @@
 +
 +Route::get('informes/materia-prima/datos', [InformeMateriaPrimaController::class, 'datos'])
 +    ->name('informes.materia-prima.datos')
++    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
++
++Route::get('informes/materia-prima/reporte', [InformeMateriaPrimaController::class, 'reporte'])
++    ->name('informes.materia-prima.reporte')
 +    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
 +
 +Route::get('informes/materia-prima/excel', [InformeMateriaPrimaController::class, 'excel'])

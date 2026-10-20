@@ -44,7 +44,20 @@ class InformeMateriaPrimaController extends Controller
 
         return response()->json([
             'resumen' => $this->servicio->resumen($filtros, $ubicacionId),
-            'detalle' => $this->servicio->detalle($filtros, $ubicacionId, (int) ($filtros['per_page'] ?? 50)),
+            'detalle' => $this->servicio->detalle($filtros, $ubicacionId, (int) ($filtros['per_page'] ?? 10)),
+        ]);
+    }
+
+    // Datos completos (sin paginar) para generar el reporte impreso en el navegador.
+    public function reporte(InformeMateriaPrimaRequest $request)
+    {
+        $filtros = $request->validated();
+        $ubicacionId = $this->ubicacionId();
+
+        return response()->json([
+            'resumen' => $this->servicio->resumen($filtros, $ubicacionId),
+            'detalle' => $this->servicio->detalleCompleto($filtros, $ubicacionId),
+            'emitido_por' => auth()->user()->name,
         ]);
     }
 

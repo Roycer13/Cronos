@@ -49,7 +49,7 @@ class InformeMateriaPrimaService
         ];
     }
 
-    public function detalle(array $filtros, ?int $ubicacionId, int $perPage = 50)
+    private function consultaDetalle(array $filtros, ?int $ubicacionId)
     {
         return $this->base($filtros, $ubicacionId)
             ->with([
@@ -59,8 +59,19 @@ class InformeMateriaPrimaService
                 'liberacion:id,nombre',
                 'recepcionLotes:id,recepcion_materia_prima_id,lote,fecha_vencimiento,cantidad_recepcionada_total_kg',
             ])
-            ->orderByDesc('tiempo')
+            ->orderByDesc('tiempo');
+    }
+
+    public function detalle(array $filtros, ?int $ubicacionId, int $perPage = 10)
+    {
+        return $this->consultaDetalle($filtros, $ubicacionId)
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    /** Todas las filas del filtro (para el reporte impreso), con tope de seguridad. */
+    public function detalleCompleto(array $filtros, ?int $ubicacionId, int $limite = 3000)
+    {
+        return $this->consultaDetalle($filtros, $ubicacionId)->limit($limite)->get();
     }
 }

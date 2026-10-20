@@ -76,8 +76,17 @@ return new class extends Migration
             });
         }
     }
-    private function createIndexIfNotExists(string $table, string $indexName, string $column): void
+        private function createIndexIfNotExists(string $table, string $indexName, string $column): void
     {
+        // Pruebas automáticas (SQLite): sintaxis portable
+        if (DB::getDriverName() !== 'sqlsrv') {
+            if (Schema::hasTable($table)) {
+                DB::statement("CREATE INDEX IF NOT EXISTS {$indexName} ON {$table} ({$column})");
+            }
+            return;
+        }
+
+        // SQL Server (producción y desarrollo): igual que antes
         $query = "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = '{$indexName}' AND object_id = OBJECT_ID('{$table}'))
                   CREATE INDEX {$indexName} ON {$table} ({$column});";
 

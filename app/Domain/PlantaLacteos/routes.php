@@ -1118,6 +1118,10 @@ Route::get('informes/materia-prima/datos', [InformeMateriaPrimaController::class
     ->name('informes.materia-prima.datos')
     ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
 
+Route::get('informes/materia-prima/reporte', [InformeMateriaPrimaController::class, 'reporte'])
+    ->name('informes.materia-prima.reporte')
+    ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');
+
 Route::get('informes/materia-prima/excel', [InformeMateriaPrimaController::class, 'excel'])
     ->name('informes.materia-prima.excel')
     ->middleware(AdminOrPermission::class . ':r_recepcionMateriaPrima');

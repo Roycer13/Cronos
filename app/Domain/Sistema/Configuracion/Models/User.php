@@ -18,10 +18,11 @@ use App\Domain\ModulosComunes\Sanidad\Models\Policlinico; // Si no lo tienes ya
 use App\Domain\ModulosComunes\HigienePersonal\Models\HigienePersonal;
 use App\Domain\ModulosComunes\HigienePersonal\Models\InspeccionCasillero;
 use App\Domain\PlantaLacteos\Models\TratamientoAguaResidual;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasApiTokens, HasRoles;
 
     /**
      * The attributes that are mass assignable.

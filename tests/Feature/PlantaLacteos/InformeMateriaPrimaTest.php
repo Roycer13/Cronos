@@ -57,6 +57,7 @@ class InformeMateriaPrimaTest extends TestCase
         $this->getJson('/recepciones-materia-prima/pdf')->assertForbidden();
         $this->getJson('/informes/materia-prima/datos')->assertForbidden();
         $this->get('/informes/materia-prima/excel')->assertForbidden();
+        $this->getJson('/informes/materia-prima/reporte')->assertForbidden();
     }
 
     public function test_usuario_no_admin_solo_suma_su_ubicacion(): void
@@ -120,5 +121,35 @@ class InformeMateriaPrimaTest extends TestCase
         $this->get('/informes/materia-prima/excel')
             ->assertOk()
             ->assertHeader('content-disposition');
+    }
+
+    public function test_detalle_se_pagina_de_a_10_y_el_reporte_trae_todo(): void
+    {
+        foreach (range(1, 12) as $i) {
+            $this->recepcion(1, '10.000');
+        }
+
+        $this->actingAs($this->usuario(1));
+
+        $datos = $this->getJson('/informes/materia-prima/datos')->assertOk();
+        $this->assertCount(10, $datos->json('detalle.data'));
+        $this->assertSame(2, $datos->json('detalle.last_page'));
+        $this->assertSame(12, $datos->json('detalle.total'));
+
+        $reporte = $this->getJson('/informes/materia-prima/reporte')->assertOk();
+        $this->assertCount(12, $reporte->json('detalle'));
+    }
+
+    public function test_con_10_o_menos_registros_hay_una_sola_pagina(): void
+    {
+        foreach (range(1, 10) as $i) {
+            $this->recepcion(1, '5.000');
+        }
+
+        $this->actingAs($this->usuario(1));
+
+        $this->getJson('/informes/materia-prima/datos')
+            ->assertOk()
+            ->assertJsonPath('detalle.last_page', 1);
     }
 }
